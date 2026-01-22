@@ -1,9 +1,12 @@
 {
   "generators": {
-    "address": 3,
+    "address": 2,
     "nonce": 0
   },
   "auth": [
+    [],
+    [],
+    [],
     [],
     [],
     []
@@ -190,7 +193,7 @@
                               "symbol": "pause_borrow"
                             },
                             "val": {
-                              "bool": false
+                              "bool": true
                             }
                           },
                           {
@@ -198,7 +201,7 @@
                               "symbol": "pause_deposit"
                             },
                             "val": {
-                              "bool": false
+                              "bool": true
                             }
                           },
                           {
