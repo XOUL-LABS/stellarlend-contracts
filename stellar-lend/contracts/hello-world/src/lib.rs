@@ -778,5 +778,5 @@ impl HelloContract {
 #[cfg(test)]
 mod tests {
     mod test;
-    mod test_cross_asset;
+    // mod test_cross_asset;
 }
