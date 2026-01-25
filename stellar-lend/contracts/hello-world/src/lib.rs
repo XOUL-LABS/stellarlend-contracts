@@ -70,9 +70,7 @@ use interest_rate::{
 #[contract]
 pub struct HelloContract;
 
-#[allow(clippy::too_many_arguments)]
 #[contractimpl]
-#[allow(clippy::too_many_arguments)] // Allow for generated client functions with many parameters
 impl HelloContract {
     pub fn hello(env: Env) -> String {
         String::from_str(&env, "Hello")
