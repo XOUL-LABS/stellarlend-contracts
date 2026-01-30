@@ -1,3 +1,4 @@
+#![allow(clippy::too_many_arguments)]
 #![no_std]
 #![allow(unused_imports)]
 use soroban_sdk::{
@@ -60,7 +61,6 @@ use interest_rate::{
 #[contract]
 pub struct HelloContract;
 
-#[allow(clippy::too_many_arguments)]
 #[contractimpl]
 impl HelloContract {
     pub fn hello(env: Env) -> String {
@@ -299,6 +299,7 @@ impl HelloContract {
 
     /// Internal function to set multiple pause switches. Designed to be called by governance.
     /// It's marked `pub(crate)` to be accessible within the crate but not externally.
+    #[allow(dead_code)]
     pub(crate) fn set_pause_switches_internal(
         env: Env,
         caller: Address,
@@ -765,7 +766,7 @@ impl HelloContract {
     /// Updates the price for an asset from an oracle source with validation.
     ///
     /// # Arguments
-    /// * `caller` - The address calling this function (must be admin or oracle)
+    /// * `caller` - The caller address (must be admin or oracle)
     /// * `asset` - The asset address
     /// * `price` - The new price
     /// * `decimals` - Price decimals

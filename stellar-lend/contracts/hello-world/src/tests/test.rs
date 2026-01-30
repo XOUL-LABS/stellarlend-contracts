@@ -12,12 +12,13 @@ fn create_test_env() -> Env {
 /// Helper function to create a mock token contract
 /// Returns the contract address for the registered stellar asset
 fn create_token_contract(env: &Env, _admin: &Address) -> Address {
-    Address::generate(&env)
+    Address::generate(env)
 }
 
 /// Helper function to mint tokens to a user
 /// For stellar asset contracts, use the contract's mint method directly
 /// Note: This is a placeholder - actual minting requires proper token contract setup
+#[allow(dead_code)]
 #[allow(unused_variables)]
 fn mint_tokens(_env: &Env, _token: &Address, _admin: &Address, _to: &Address, _amount: i128) {
     // For stellar assets, we need to use the contract's mint function
@@ -29,6 +30,7 @@ fn mint_tokens(_env: &Env, _token: &Address, _admin: &Address, _to: &Address, _a
 }
 
 /// Helper function to approve tokens for spending
+#[allow(dead_code)]
 fn approve_tokens(
     _env: &Env,
     _token: &Address,
@@ -2364,6 +2366,7 @@ fn test_configure_oracle() {
 
 // #[test]
 // #[should_panic(expected = "InsufficientLiquidity")]
+#[allow(dead_code)]
 fn test_execute_flash_loan_success() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
@@ -2431,6 +2434,7 @@ fn test_execute_flash_loan_success() {
 
 // #[test]
 // #[should_panic(expected = "InvalidAsset")]
+#[allow(dead_code)]
 fn test_execute_flash_loan_invalid_asset() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
@@ -2448,6 +2452,7 @@ fn test_execute_flash_loan_invalid_asset() {
 
 // #[test]
 // #[should_panic(expected = "InvalidCallback")]
+#[allow(dead_code)]
 fn test_execute_flash_loan_invalid_callback() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
@@ -2591,6 +2596,7 @@ fn test_configure_flash_loan() {
 
 // #[test]
 // #[should_panic(expected = "InsufficientLiquidity")]
+#[allow(dead_code)]
 fn test_flash_loan_fee_calculation_logic() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
@@ -2622,6 +2628,7 @@ fn test_flash_loan_fee_calculation_logic() {
 
 // #[test]
 // #[should_panic(expected = "InsufficientLiquidity")]
+#[allow(dead_code)]
 fn test_flash_loan_multiple_assets_validation() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
