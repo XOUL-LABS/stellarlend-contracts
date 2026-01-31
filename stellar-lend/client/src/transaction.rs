@@ -74,9 +74,7 @@ impl TransactionManager {
     ) -> Result<SimulateTransactionResult> {
         info!("Simulating Soroban transaction");
 
-        self.soroban_rpc
-            .simulate_transaction(transaction_xdr)
-            .await
+        self.soroban_rpc.simulate_transaction(transaction_xdr).await
     }
 
     /// Submit a Soroban transaction

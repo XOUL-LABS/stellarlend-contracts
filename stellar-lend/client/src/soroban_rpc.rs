@@ -204,15 +204,22 @@ impl SorobanRpcClient {
 
         let result_xdr = result["results"][0]["xdr"].as_str().map(|s| s.to_string());
 
-        let transaction_data = result["transactionData"].as_str().ok_or_else(|| {
-            BlockchainError::InvalidResponse("Missing transactionData in simulation".to_string())
-        })?.to_string();
+        let transaction_data = result["transactionData"]
+            .as_str()
+            .ok_or_else(|| {
+                BlockchainError::InvalidResponse(
+                    "Missing transactionData in simulation".to_string(),
+                )
+            })?
+            .to_string();
 
         let min_resource_fee = result["minResourceFee"].as_str().unwrap_or("0").to_string();
 
-        let events = result["events"]
-            .as_array()
-            .map(|arr| arr.iter().filter_map(|e| e.as_str().map(String::from)).collect());
+        let events = result["events"].as_array().map(|arr| {
+            arr.iter()
+                .filter_map(|e| e.as_str().map(String::from))
+                .collect()
+        });
 
         debug!(
             "Transaction simulation completed. Success: {}, Fee: {}",
@@ -263,11 +270,9 @@ impl SorobanRpcClient {
 
         let result = self.call_rpc("getTransaction", params).await?;
 
-        let status_str = result["status"]
-            .as_str()
-            .ok_or_else(|| {
-                BlockchainError::InvalidResponse("Missing status in transaction response".to_string())
-            })?;
+        let status_str = result["status"].as_str().ok_or_else(|| {
+            BlockchainError::InvalidResponse("Missing status in transaction response".to_string())
+        })?;
 
         let status = match status_str {
             "SUCCESS" => TransactionStatus::Success,
@@ -278,10 +283,7 @@ impl SorobanRpcClient {
 
         let ledger = result["ledger"].as_u64().unwrap_or(0);
 
-        let result_xdr = result["resultXdr"]
-            .as_str()
-            .unwrap_or("")
-            .to_string();
+        let result_xdr = result["resultXdr"].as_str().unwrap_or("").to_string();
 
         debug!(
             "Transaction retrieved: {} (status: {:?}, ledger: {})",
