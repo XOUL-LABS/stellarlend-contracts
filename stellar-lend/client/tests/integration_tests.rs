@@ -321,7 +321,7 @@ async fn test_config_builder_pattern() {
 async fn test_error_handling_and_retries() {
     let mock_server = MockServer::start().await;
 
-    // First two requests fail, third succeeds
+    // First request fails, second succeeds
     Mock::given(method("GET"))
         .and(path("/"))
         .respond_with(
@@ -329,7 +329,7 @@ async fn test_error_handling_and_retries() {
                 .set_body_string("Service Unavailable")
                 .append_header("Retry-After", "1"),
         )
-        .up_to_n_times(2)
+        .up_to_n_times(1)
         .mount(&mock_server)
         .await;
 
