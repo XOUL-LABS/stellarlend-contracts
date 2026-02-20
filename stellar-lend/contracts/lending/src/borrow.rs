@@ -107,15 +107,17 @@ pub fn borrow(
 
     let total_debt = get_total_debt(env);
     let debt_ceiling = get_debt_ceiling(env);
-    let new_total = total_debt.checked_add(amount).ok_or(BorrowError::Overflow)?;
-    
+    let new_total = total_debt
+        .checked_add(amount)
+        .ok_or(BorrowError::Overflow)?;
+
     if new_total > debt_ceiling {
         return Err(BorrowError::DebtCeilingReached);
     }
 
     let mut debt_position = get_debt_position(env, &user);
     let accrued_interest = calculate_interest(env, &debt_position);
-    
+
     debt_position.borrowed_amount = debt_position
         .borrowed_amount
         .checked_add(amount)
@@ -148,7 +150,7 @@ fn validate_collateral_ratio(collateral: i128, borrow: i128) -> Result<(), Borro
     // To avoid overflow, check if collateral >= borrow * 1.5
     // Which is: collateral * 10000 >= borrow * 15000
     // Rearranged: collateral >= (borrow * 15000) / 10000
-    
+
     let min_collateral = borrow
         .checked_mul(COLLATERAL_RATIO_MIN)
         .ok_or(BorrowError::Overflow)?
@@ -170,15 +172,13 @@ fn calculate_interest(env: &Env, position: &DebtPosition) -> i128 {
 
     let current_time = env.ledger().timestamp();
     let time_elapsed = current_time.saturating_sub(position.last_update);
-    
-    let interest = position
+
+    position
         .borrowed_amount
-        .saturating_mul(INTEREST_RATE_PER_YEAR as i128)
+        .saturating_mul(INTEREST_RATE_PER_YEAR)
         .saturating_mul(time_elapsed as i128)
         .saturating_div(10000)
-        .saturating_div(SECONDS_PER_YEAR as i128);
-
-    interest
+        .saturating_div(SECONDS_PER_YEAR as i128)
 }
 
 fn get_debt_position(env: &Env, user: &Address) -> DebtPosition {

@@ -1,12 +1,14 @@
-#![cfg(test)]
 use super::*;
-use soroban_sdk::{testutils::{Address as _, Ledger, AuthorizedFunction, AuthorizedInvocation}, Address, Env, IntoVal};
+use soroban_sdk::{
+    testutils::{Address as _, Ledger},
+    Address, Env,
+};
 
 #[test]
 fn test_borrow_success() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -30,7 +32,7 @@ fn test_borrow_success() {
 fn test_borrow_insufficient_collateral() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -48,7 +50,7 @@ fn test_borrow_insufficient_collateral() {
 fn test_borrow_protocol_paused() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -67,7 +69,7 @@ fn test_borrow_protocol_paused() {
 fn test_borrow_invalid_amount() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -88,7 +90,7 @@ fn test_borrow_invalid_amount() {
 fn test_borrow_below_minimum() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -106,7 +108,7 @@ fn test_borrow_below_minimum() {
 fn test_borrow_debt_ceiling() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -124,7 +126,7 @@ fn test_borrow_debt_ceiling() {
 fn test_borrow_multiple_times() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -148,7 +150,7 @@ fn test_borrow_multiple_times() {
 fn test_borrow_interest_accrual() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     env.ledger().with_mut(|li| {
         li.timestamp = 1000;
     });
@@ -176,7 +178,7 @@ fn test_borrow_interest_accrual() {
 fn test_collateral_ratio_validation() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -199,7 +201,7 @@ fn test_collateral_ratio_validation() {
 fn test_pause_unpause() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -221,7 +223,7 @@ fn test_pause_unpause() {
 fn test_overflow_protection() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     let contract_id = env.register(LendingContract, ());
     let client = LendingContractClient::new(&env, &contract_id);
 
@@ -237,6 +239,12 @@ fn test_overflow_protection() {
     // Try to borrow amount that would overflow when added to existing debt
     let huge_amount = i128::MAX - 500_000;
     let huge_collateral = i128::MAX / 2; // Large but won't overflow in calculation
-    let result = client.try_borrow(&user, &asset, &huge_amount, &collateral_asset, &huge_collateral);
+    let result = client.try_borrow(
+        &user,
+        &asset,
+        &huge_amount,
+        &collateral_asset,
+        &huge_collateral,
+    );
     assert_eq!(result, Err(Ok(BorrowError::Overflow)));
 }

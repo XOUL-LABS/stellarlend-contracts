@@ -44,7 +44,14 @@ impl LendingContract {
         collateral_asset: Address,
         collateral_amount: i128,
     ) -> Result<(), BorrowError> {
-        borrow(&env, user, asset, amount, collateral_asset, collateral_amount)
+        borrow(
+            &env,
+            user,
+            asset,
+            amount,
+            collateral_asset,
+            collateral_amount,
+        )
     }
 
     /// Initialize borrow settings (admin only)
