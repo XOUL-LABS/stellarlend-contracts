@@ -7,8 +7,8 @@
 //! - Storage correctness verification
 //! - Security assumptions validation
 
-use crate::risk_management::RiskDataKey;
 use crate::interest_rate::InterestRateDataKey;
+use crate::risk_management::RiskDataKey;
 use crate::{HelloContract, HelloContractClient};
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
@@ -86,7 +86,7 @@ fn test_double_initialization_behavior() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
     let client = HelloContractClient::new(&env, &contract_id);
-    
+
     let admin1 = Address::generate(&env);
     let admin2 = Address::generate(&env);
 
@@ -102,14 +102,18 @@ fn test_double_initialization_behavior() {
     // Verify interest rate config is not overwritten
     env.as_contract(&contract_id, || {
         let config_key = InterestRateDataKey::InterestRateConfig;
-        assert!(env.storage().persistent().has(&config_key),
-                "Interest rate config should still exist");
+        assert!(
+            env.storage().persistent().has(&config_key),
+            "Interest rate config should still exist"
+        );
     });
 
     // Verify risk config timestamp changed (indicating re-initialization)
     let new_config = client.get_risk_config().unwrap();
-    assert!(new_config.last_update >= original_config.last_update,
-            "Config should be updated on re-initialization");
+    assert!(
+        new_config.last_update >= original_config.last_update,
+        "Config should be updated on re-initialization"
+    );
 }
 
 /// Test: Storage correctness after initialization
@@ -137,7 +141,10 @@ fn test_storage_correctness() {
 
         // Verify interest rate storage
         assert!(env.storage().persistent().has(&InterestRateDataKey::Admin));
-        assert!(env.storage().persistent().has(&InterestRateDataKey::InterestRateConfig));
+        assert!(env
+            .storage()
+            .persistent()
+            .has(&InterestRateDataKey::InterestRateConfig));
     });
 }
 
@@ -160,12 +167,26 @@ fn test_default_risk_parameters_valid() {
     let config = client.get_risk_config().unwrap();
 
     // Security validations
-    assert!(config.min_collateral_ratio >= 10_000, "Min collateral ratio must be >= 100%");
-    assert!(config.liquidation_threshold < config.min_collateral_ratio, 
-            "Liquidation threshold must be < min collateral ratio");
-    assert!(config.close_factor <= 10_000, "Close factor must be <= 100%");
-    assert!(config.liquidation_incentive > 0, "Liquidation incentive must be positive");
-    assert!(config.liquidation_incentive <= 5_000, "Liquidation incentive should be reasonable (<= 50%)");
+    assert!(
+        config.min_collateral_ratio >= 10_000,
+        "Min collateral ratio must be >= 100%"
+    );
+    assert!(
+        config.liquidation_threshold < config.min_collateral_ratio,
+        "Liquidation threshold must be < min collateral ratio"
+    );
+    assert!(
+        config.close_factor <= 10_000,
+        "Close factor must be <= 100%"
+    );
+    assert!(
+        config.liquidation_incentive > 0,
+        "Liquidation incentive must be positive"
+    );
+    assert!(
+        config.liquidation_incentive <= 5_000,
+        "Liquidation incentive should be reasonable (<= 50%)"
+    );
 }
 
 /// Test: Default interest rate configuration
@@ -182,8 +203,10 @@ fn test_default_interest_rate_config() {
 
     env.as_contract(&contract_id, || {
         let config_key = InterestRateDataKey::InterestRateConfig;
-        assert!(env.storage().persistent().has(&config_key), 
-                "Interest rate config should be initialized");
+        assert!(
+            env.storage().persistent().has(&config_key),
+            "Interest rate config should be initialized"
+        );
     });
 }
 
@@ -209,8 +232,11 @@ fn test_pause_switches_initialized() {
 
     for op in operations {
         let symbol = Symbol::new(&env, op);
-        assert!(!client.is_operation_paused(&symbol), 
-                "Operation {} should be unpaused after initialization", op);
+        assert!(
+            !client.is_operation_paused(&symbol),
+            "Operation {} should be unpaused after initialization",
+            op
+        );
     }
 }
 
@@ -226,8 +252,10 @@ fn test_emergency_pause_initialized() {
 
     client.initialize(&admin);
 
-    assert!(!client.is_emergency_paused(), 
-            "Emergency pause should be false after initialization");
+    assert!(
+        !client.is_emergency_paused(),
+        "Emergency pause should be false after initialization"
+    );
 }
 
 /// Test: Timestamp recording
@@ -244,8 +272,10 @@ fn test_timestamp_recorded() {
     client.initialize(&admin);
 
     let config = client.get_risk_config().unwrap();
-    assert_eq!(config.last_update, init_time, 
-               "Last update timestamp should match initialization time");
+    assert_eq!(
+        config.last_update, init_time,
+        "Last update timestamp should match initialization time"
+    );
 }
 
 /// Test: Multiple admin addresses
@@ -254,13 +284,13 @@ fn test_timestamp_recorded() {
 #[test]
 fn test_various_admin_addresses() {
     let env = create_test_env();
-    
+
     // Test with generated address
     let contract_id1 = env.register(HelloContract, ());
     let client1 = HelloContractClient::new(&env, &contract_id1);
     let admin1 = Address::generate(&env);
     client1.initialize(&admin1);
-    
+
     env.as_contract(&contract_id1, || {
         let stored: Address = env.storage().persistent().get(&RiskDataKey::Admin).unwrap();
         assert_eq!(stored, admin1);
@@ -271,7 +301,7 @@ fn test_various_admin_addresses() {
     let client2 = HelloContractClient::new(&env, &contract_id2);
     let admin2 = Address::generate(&env);
     client2.initialize(&admin2);
-    
+
     env.as_contract(&contract_id2, || {
         let stored: Address = env.storage().persistent().get(&RiskDataKey::Admin).unwrap();
         assert_eq!(stored, admin2);
@@ -292,14 +322,21 @@ fn test_initialization_state_consistency() {
 
     env.as_contract(&contract_id, || {
         // Both modules should have admin set
-        let risk_admin: Address = env.storage().persistent()
-            .get(&RiskDataKey::Admin).unwrap();
-        let interest_admin: Address = env.storage().persistent()
-            .get(&InterestRateDataKey::Admin).unwrap();
-        
-        assert_eq!(risk_admin, interest_admin, 
-                   "Both modules should have the same admin");
-        assert_eq!(risk_admin, admin, "Admin should match initialization parameter");
+        let risk_admin: Address = env.storage().persistent().get(&RiskDataKey::Admin).unwrap();
+        let interest_admin: Address = env
+            .storage()
+            .persistent()
+            .get(&InterestRateDataKey::Admin)
+            .unwrap();
+
+        assert_eq!(
+            risk_admin, interest_admin,
+            "Both modules should have the same admin"
+        );
+        assert_eq!(
+            risk_admin, admin,
+            "Admin should match initialization parameter"
+        );
     });
 }
 
@@ -326,7 +363,10 @@ fn test_storage_persistence() {
 
     // Data should still be accessible
     let config = client.get_risk_config();
-    assert!(config.is_some(), "Config should persist across ledger advancement");
+    assert!(
+        config.is_some(),
+        "Config should persist across ledger advancement"
+    );
 }
 
 /// Test: Initialization should only happen once in production
