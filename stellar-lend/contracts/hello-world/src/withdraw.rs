@@ -1,4 +1,4 @@
-use soroban_sdk::{contracterror, Address, Env, IntoVal, Map, Symbol, Val, Vec}};
+use soroban_sdk::{contracterror, Address, Env, IntoVal, Map, Symbol, Val, Vec};
 
 use crate::deposit::{
     add_activity_log, emit_analytics_updated_event, emit_position_updated_event,
@@ -108,7 +108,7 @@ fn validate_collateral_ratio_after_withdraw(
     };
 
     // Calculate total debt (debt + accrued interest)
-    let total_debt = position
+    let _total_debt = position
         .debt
         .checked_add(position.borrow_interest)
         .ok_or(WithdrawError::Overflow)?;

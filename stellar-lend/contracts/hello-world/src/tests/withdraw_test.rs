@@ -253,6 +253,7 @@ fn test_withdraw_violates_collateral_ratio() {
 }
 
 #[test]
+#[should_panic(expected = "InsufficientCollateralRatio")]
 fn test_withdraw_at_minimum_ratio_boundary() {
     let env = create_test_env();
     let contract_id = env.register(HelloContract, ());
@@ -278,9 +279,8 @@ fn test_withdraw_at_minimum_ratio_boundary() {
 
     // Withdraw to exactly 150% ratio
     // Current: 1500/1000 = 150%
-    // After: 1500/1000 = 150% (exactly at minimum)
-    let result = client.withdraw_collateral(&user, &None, &0);
-    assert_eq!(result, collateral);
+    // After withdrawing 1: 1499/1000 = 149.9% (just below minimum, should fail)
+    client.withdraw_collateral(&user, &None, &1);
 }
 
 #[test]
@@ -554,7 +554,7 @@ fn test_withdraw_collateralization_ratio_calculation() {
     // Deposit
     client.deposit_collateral(&user, &None, &2000);
 
-    // Set debt
+    // Set debt and update analytics to reflect it
     env.as_contract(&contract_id, || {
         let position_key = DepositDataKey::Position(user.clone());
         let mut position = env
@@ -564,12 +564,23 @@ fn test_withdraw_collateralization_ratio_calculation() {
             .unwrap();
         position.debt = 500;
         env.storage().persistent().set(&position_key, &position);
+
+        // Update analytics to reflect the debt
+        let analytics_key = DepositDataKey::UserAnalytics(user.clone());
+        let mut analytics = env
+            .storage()
+            .persistent()
+            .get::<DepositDataKey, UserAnalytics>(&analytics_key)
+            .unwrap();
+        analytics.debt_value = 500;
+        analytics.collateralization_ratio = (2000 * 10000) / 500; // 40000 (400%)
+        env.storage().persistent().set(&analytics_key, &analytics);
     });
 
     // Withdraw
     client.withdraw_collateral(&user, &None, &500);
 
-    // Verify analytics shows correct ratio
+    // Verify analytics shows correct ratio after withdrawal
     let analytics = get_user_analytics(&env, &contract_id, &user).unwrap();
     // Ratio = (1500 * 10000) / 500 = 30000 (300%)
     assert_eq!(analytics.collateralization_ratio, 30000);
